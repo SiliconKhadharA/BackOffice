@@ -1,0 +1,66 @@
+﻿@page "/Register-Newsletter"
+@rendermode InteractiveServer
+@using Infrastructure.Models
+
+<h3>Subcribers</h3>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var subscriber in subscribers)
+            {
+                <tr>
+                    <td>@subscriber.Id</td>
+                    <td>@subscriber.Email</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditSubscriber(subscriber.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteSubscriber(subscriber.Email)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SubscribersModel> subscribers;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubscribers();
+    }
+
+    private async Task LoadSubscribers()
+    {
+        isLoading = true;
+        subscribers = await Http.GetFromJsonAsync<List<SubscribersModel>>("http://localhost:7081/api/subscribers");
+        isLoading = false;
+    }
+
+    private void EditSubscriber(string id)
+    {
+        NavigationManager.NavigateTo($"/edit-subscriber/{id}");
+    }
+
+    private async Task DeleteSubscriber(string email)
+    {
+        await Http.DeleteAsync($"http://localhost:7081/api/subscribers/{email}");
+        await LoadSubscribers();
+    }
+
+   
+}

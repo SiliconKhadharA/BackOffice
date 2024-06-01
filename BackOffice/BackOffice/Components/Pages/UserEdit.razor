@@ -1,0 +1,84 @@
+﻿@page "/edit-user/{id}"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@attribute [StreamRendering]
+
+@if (user == null)
+{
+
+    <p><em>Loading.......</em></p>
+}
+else
+{
+    <div class="form-group">
+        <label for="email">First Name:</label>
+        <input type="text" id="firstName" @bind="user.FirstName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="email">Last Name:</label>
+        <input type="text" id="lastName" @bind="user.LastName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" @bind="user.Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="email">Phone:</label>
+        <input type="number" id="phone" @bind="user.PhoneNumber" class="form-control" />
+    </div>
+    <button class="btn btn-primary" @onclick="UpdateUser" disabled="@isSaving">Save</button>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+    private bool isSaving = false;
+    private UsersModel user = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubscriber();
+    }
+
+    private async Task LoadSubscriber()
+    {
+
+        user = await Http.GetFromJsonAsync<UsersModel>($"http://localhost:7166/api/user/{Id}") ?? null!;
+
+
+    }
+
+    private async Task UpdateUser()
+    {
+        isSaving = true;
+        var updateRequest = new UpdateUserRequest
+            {
+                Id = user?.Id,
+                FirstName = user?.FirstName,
+                LastName = user?.LastName,
+                Email = user?.Email,
+                PhoneNumber = user?.PhoneNumber
+            };
+        var response = await Http.PutAsJsonAsync("http://localhost:7166/api/user/update", updateRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            // Handle error
+        }
+
+        isSaving = false;
+    }
+
+    public class UpdateUserRequest
+    {
+        public string? Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+    }
+}

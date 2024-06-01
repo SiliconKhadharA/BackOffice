@@ -1,0 +1,62 @@
+﻿@page "/edit-subscriber/{id}"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+<h3>Edit Subscribers</h3>
+
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" @bind="newEmail" class="form-control" />
+    </div>
+    <button class="btn btn-primary" @onclick="UpdateEmail" disabled="@isSaving">Save</button>
+    
+}
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private SubscribersModel subscriber = new SubscribersModel();
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string? newEmail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubscriber();
+    }
+
+    private async Task LoadSubscriber()
+    {
+        isLoading = true;
+        subscriber = await Http.GetFromJsonAsync<SubscribersModel>($"http://localhost:7081/api/subscriber/{Id}")!;
+        newEmail = subscriber.Email;
+        isLoading = false;
+    }
+
+    private async Task UpdateEmail()
+    {
+        isSaving = true;
+        var updateRequest = new { Id = subscriber.Id, NewEmail = newEmail };
+        var response = await Http.PutAsJsonAsync(" http://localhost:7081/api/subscription/update-email", updateRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/Register-Newsletter");
+        }
+        else
+        {
+            // Handle error
+        }
+
+        isSaving = false;
+    }
+
+}

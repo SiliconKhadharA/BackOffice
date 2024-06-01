@@ -1,0 +1,140 @@
+﻿@page "/create-course"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Create Course</h3>
+
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" id="title" @bind="newCourse.Title" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="isBestseller">Is Bestseller:</label>
+        <input type="checkbox" id="isBestseller" @bind="newCourse.IsBestseller" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="isDigital">Is Digital:</label>
+        <input type="checkbox" id="isDigital" @bind="newCourse.IsDigital" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="categories">Categories:</label>
+        <input type="text" id="categories" @bind="newCourse.Categories" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="imageUri">Image URI:</label>
+        <input type="text" id="imageUri" @bind="newCourse.ImageUri" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="likes">Likes:</label>
+        <input type="number" id="likes" @bind="newCourse.Likes" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="likesInProcent">Likes in Percent:</label>
+        <input type="text" id="likesInProcent" @bind="newCourse.LikesInProcent" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="hours">Hours:</label>
+        <input type="number" id="hours" @bind="newCourse.Hours" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="starRating">Star Rating:</label>
+        <input type="number" step="0.01" id="starRating" @bind="newCourse.StarRating" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="reviews">Reviews:</label>
+        <input type="text" id="reviews" @bind="newCourse.Reviews" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="authors">Authors:</label>
+        @foreach (var author in newCourse.Authors)
+        {
+            <input type="text" @bind="author.Name" class="form-control mb-2" />
+        }
+        <button class="btn btn-secondary" @onclick="AddAuthor">Add Author</button>
+    </div>
+    <div class="form-group">
+        <label for="prices">Prices:</label>
+    @if (newCourse.Prices != null)
+        {
+            <input type="number" placeholder="Price" @bind="newCourse.Prices.Price" class="form-control mb-2" />
+            <input type="text" placeholder="Currency" @bind="newCourse.Prices.Currency" class="form-control mb-2" />
+            <input type="number" placeholder="Discount" @bind="newCourse.Prices.Discount" class="form-control mb-2" />
+        }
+    </div>
+    <div class="form-group">
+        <label for="content">Content:</label>
+        <input type="text" id="contentDescription" @bind="newCourse.Content.Description" class="form-control mb-2" placeholder="Description" />
+        @foreach (var detail in newCourse.Content.ProgramDetails)
+        {
+            <div class="form-group">
+                <label for="programDetailTitle">Program Detail Title:</label>
+                <input type="text" id="programDetailTitle" @bind="detail.Title" class="form-control mb-2" />
+                <label for="programDetailDescription">Program Detail Description:</label>
+                <input type="text" id="programDetailDescription" @bind="detail.Description" class="form-control mb-2" />
+            </div>
+        }
+        <button class="btn btn-secondary" @onclick="AddProgramDetail">Add Program Detail</button>
+    </div>
+<button class="btn btn-primary" @onclick="SaveCourse">Save</button>
+
+@code {
+    private SingleCourseModel newCourse = new SingleCourseModel();
+
+    private async Task SaveCourse()
+    {
+        var categories = string.Join(",", newCourse.Categories.Select(c => $"\"{c}\""));
+        var authors = string.Join(",", newCourse.Authors.Select(a => $"{{ name: \"{a.Name}\" }}"));
+        var programDetails = string.Join(",", newCourse.Content.ProgramDetails.Select(pd => $"{{ title: \"{pd.Title}\", description: \"{pd.Description}\" }}"));
+
+        var query = new GraphQLQuery
+        {
+            Query = $@"
+            mutation {{
+                createCourse(
+                    input: {{
+                        imageUri: ""{newCourse.ImageUri}"", 
+                        imageHeaderUri: ""{newCourse.ImageHeaderUri}"", 
+                        isBestseller: {newCourse.IsBestseller.ToString().ToLower()}, 
+                        isDigital: {newCourse.IsDigital.ToString().ToLower()}, 
+                        categories: [{categories}], 
+                        title: ""{newCourse.Title}"", 
+                        ingress: ""{newCourse.Ingress}"", 
+                        starRating: {newCourse.StarRating}, 
+                        reviews: ""{newCourse.Reviews}"", 
+                        likesInProcent: ""{newCourse.LikesInProcent}"", 
+                        likes: {newCourse.Likes}, 
+                        hours: {newCourse.Hours}, 
+                        authors: [{authors}], 
+                        prices: {{ price: {newCourse.Prices.Price}, currency: ""{newCourse.Prices.Currency}"", discount: {newCourse.Prices.Discount} }}, 
+                        content: {{ description: ""{newCourse.Content.Description}"", programDetails: [{programDetails}] }}
+                    }}
+                ) {{
+                    id
+                }}
+            }}"
+        };
+
+        var response = await Http.PostAsJsonAsync("http://localhost:7186/api/graphql", query);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/courses");
+        }
+        else
+        {
+            // Handle error
+            Console.WriteLine("Failed to create course");
+        }
+    }
+
+    private void AddAuthor()
+    {
+        newCourse.Authors.Add(new AuthorModel());
+    }
+
+    private void AddProgramDetail()
+    {
+        newCourse.Content.ProgramDetails.Add(new ProgramDetailModel());
+    }
+}

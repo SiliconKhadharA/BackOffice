@@ -1,0 +1,91 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Antiforgery
+@inject NavigationManager NavigationManager
+@inject IAntiforgery Antiforgery
+@implements IDisposable
+<div class="navMenu" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav>
+
+        <AuthorizeView>
+            <Authorized>
+        <div class="links">
+            <NavLink class="nav-linkss" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="links">
+                    <NavLink class="nav-linkss" href="Admin-Users" Match="NavLinkMatch.All">
+                <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Admin Users
+            </NavLink>
+        </div>
+
+        <div class="links">
+                    <NavLink class="nav-linkss" href="users" Match="NavLinkMatch.All">
+                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Users
+            </NavLink>
+        </div>
+
+        <div class="links">
+            <NavLink class="nav-linkss" href="Register-Newsletter" Match="NavLinkMatch.All">
+                <span class="bi bi-envelope-fill-nav-menu" aria-hidden="true"></span> Subcribers
+            </NavLink>
+        </div>
+
+        <div class="links">
+            <NavLink class="nav-linkss" href="courses" Match="NavLinkMatch.All">
+                <span class="bi bi-book-fill-nav-menu" aria-hidden="true"></span> Courses
+            </NavLink>
+        </div>
+
+       
+                <div class="signout-buttons">
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <button type="submit" class="btn-transparent">
+                            <span class="fa-regular fa-arrow-right-from-bracket" aria-hidden="true"></span> Sign Out
+                        </button>
+                    </form>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                 
+                <div id="links">
+                    <NavLink class="btn-transparent" href="Account/Signin"><i class="fa-regular fa-right-to-bracket"></i><span>Sign In</span></NavLink>
+                    
+                </div>
+                <div id="links">
+                    <NavLink class="btn-transparent" href="Account/Register"><i class="fa-regular fa-user"></i><span>Sign Up</span></NavLink>
+
+                </div>
+                
+            </NotAuthorized>
+        </AuthorizeView>
+
+       
+    </nav>
+</div>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

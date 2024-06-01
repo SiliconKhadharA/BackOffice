@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="compilerconfig.json" />
+    <Content Remove="Components\Pages\Edites\UserEdit.razor" />
+    <Content Remove="Components\Pages\Register.razor" />
+    <Content Remove="Components\Pages\SubcribersEdit.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\BackOffice.Client\BackOffice.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\Pages\Edites\UserEdit.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\Register.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\SubcribersEdit.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\UserRegister.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="Components\Account\Pages\Register.razor" />
+    <None Include="Components\Pages\Edites\SubcribersEdit.razor" />
+    <None Include="Components\Pages\UserEdit.razor" />
+    <None Include="Components\Pages\UserRegister.razor" />
+    <None Include="wwwroot\css\scss\componets\_alert.scss" />
+    <None Include="wwwroot\css\scss\componets\_buttons.scss" />
+    <None Include="wwwroot\css\scss\componets\_forms.scss" />
+    <None Include="wwwroot\css\scss\componets\_links.scss" />
+    <None Include="wwwroot\css\scss\core\_base.scss" />
+    <None Include="wwwroot\css\scss\core\_colors.scss" />
+    <None Include="wwwroot\css\scss\core\_media.scss" />
+    <None Include="wwwroot\css\scss\core\_themeMode.scss" />
+    <None Include="wwwroot\css\scss\core\_typography.scss" />
+    <None Include="wwwroot\css\scss\sections\_cookieConsent.scss" />
+    <None Include="wwwroot\css\scss\sections\_footer.scss" />
+    <None Include="wwwroot\css\scss\sections\_header.scss" />
+    <None Include="wwwroot\css\scss\sections\_signin.scss" />
+    <None Include="wwwroot\css\scss\sections\_signup.scss" />
+    <None Include="wwwroot\css\scss\_components.scss" />
+    <None Include="wwwroot\css\scss\_core.scss" />
+    <None Include="wwwroot\css\scss\_sections.scss" />
+    <None Include="wwwroot\css\site.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Pages\Register.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Pages\UserRegister.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Pages\SubcribersEdit.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Pages\Edites\UserEdit.razor" />
+  </ItemGroup>
+
+</Project>

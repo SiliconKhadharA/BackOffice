@@ -1,0 +1,136 @@
+﻿@page "/Account/Register"
+
+
+@using Infrastructure.Entites
+@using Infrastructure.Models
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.EntityFrameworkCore
+
+@inject UserManager<AdminUserEntity> UserManager
+@inject SignInManager<AdminUserEntity> SignInManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign Up</PageTitle>
+
+<section id="signup">
+
+    <div class="container">
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert-2">
+                @ErrorMessage
+            </div>
+        }
+
+        <EditForm Model="Form" asp-route-returnUrl="@ReturnUrl"  OnValidSubmit="RegisterAdminUser" FormName="signup7" novalidate>
+            <DataAnnotationsValidator />
+
+            <h1>Create Account</h1>
+            <p>Already have an account? <a href="/signin">Sign in here</a></p>
+
+            <div class="content">
+
+                <div id="form-firstname" class="input-group">
+                    <label for="FirstName">First name</label>
+                    <ValidationMessage For="() => Form.FirstName" />
+                    <InputText @bind-Value="Form.FirstName" autocomplete="givenname" aria-required="true" placeholder="Enter your first name" />
+                </div>
+
+                <div id="form-lastname" class="input-group">
+                    <label for="LastName">Last name</label>
+                    <ValidationMessage For="() => Form.LastName" />
+                    <InputText @bind-Value="Form.LastName" autocomplete="givenname" aria-required="true" placeholder="Enter your last name" />
+                </div>
+
+                <div id="form-email" class="input-group">
+                    <label for="Email">Email address</label>
+                    <ValidationMessage For="() => Form.Email" />
+                    <InputText type="email" @bind-Value="Form.Email" autocomplete="email" aria-required="true" placeholder="Enter your Email address" />
+                </div>
+
+                <div id="form-password" class="input-group">
+                    <label for="Password">Password</label>
+                    <ValidationMessage For="() => Form.Password" />
+                    <InputText type="password" @bind-Value="Form.Password" autocomplete="password" aria-required="true" placeholder="Enter your Password" />
+                </div>
+
+                <div id="form-confirm" class="input-group">
+                    <label for="ConfirmPassword">Confirm Password</label>
+                    <ValidationMessage For="() => Form.ConfirmPassword" />
+                    <InputText type="password" @bind-Value="Form.ConfirmPassword" autocomplete="confirm" aria-required="true" placeholder="Confirm your Password" />
+                </div>
+
+                <div id="form-terms" class="checkbox">
+                    <div class="checkbox-group">
+                        <InputCheckbox @bind-Value="Form.TermsAndConditions" autocomplete="terms" aria-required="true" />
+                        <label for="TermsAndConditions">I agree to the <a href="/terms">Terms</a> & <a href="/conditions">Conditions</a></label>
+                    </div>
+
+                    <ValidationMessage For="() => Form.TermsAndConditions" />
+
+                </div>
+            </div>
+
+            <button id="form-submit" class="btn-theme-s" type="submit">Sign Up</button>
+
+        </EditForm>
+
+    </div>
+
+</section>
+
+@code {
+    [SupplyParameterFromForm]
+    private SignUpModel Form { get; set; } = new();
+
+    private string? ErrorMessage { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+
+
+    private async Task RegisterAdminUser()
+    {
+        if (Form.Password != Form.ConfirmPassword)
+        {
+            // Display error or handle password mismatch
+            return;
+        }
+
+        var adminUser = new AdminUserEntity
+            {
+                UserName = Form.Email,
+                Email = Form.Email,
+                FullName = $"{Form.FirstName} {Form.LastName}",
+                CreatedDate = DateTime.Now,
+                LastModifiedDate = DateTime.Now,
+                IsAdmin = true
+            };
+
+        if (await UserManager.Users.AnyAsync(x => x.Email == adminUser.Email))
+        {
+            ErrorMessage = "Email is alrady exist.";
+            return;
+        }
+
+        var result = await UserManager.CreateAsync(adminUser, Form.Password);
+
+        if (result.Succeeded)
+        {
+            if (!await RoleManager.RoleExistsAsync("Admin"))
+            {
+                await RoleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            await UserManager.AddToRoleAsync(adminUser, "Admin");
+            NavigationManager.NavigateTo(ReturnUrl ?? "/");
+            
+        }
+        
+    }
+}

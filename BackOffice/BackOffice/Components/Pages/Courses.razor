@@ -1,0 +1,108 @@
+﻿@page "/courses"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<h3>Courses</h3>
+@if (courses == null)
+{
+	<p><em>Loading.......</em></p>
+}
+else
+{
+	<button class="btn btn-primary mb-2" @onclick="CreateCourse">Create New Course</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in courses)
+            {
+                <tr>
+                    <td>@course.Id</td>
+                    <td>@course.Title</td>
+                    <td>@course.Author</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditCourse(course.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteCourse(course.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+
+@code {
+    private List<CourseModel>? courses;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCourses();
+    }
+
+
+    private async Task LoadCourses()
+	{
+		try
+		{
+			var query = new GraphQLQuery { Query = "{getCourses { id   title authors{name} } }" };
+			var response = await Http.PostAsJsonAsync("http://localhost:7186/api/graphql", query);
+
+			if (response.IsSuccessStatusCode)
+			{
+				var result = await response.Content.ReadFromJsonAsync<DynamicGraphQLResponse>();
+				if (result?.Data != null)
+				{
+					courses = result.Data.GetProperty("getCourses").EnumerateArray()
+					.Select(course => new CourseModel
+						{
+							Id = course.GetProperty("id").GetString(),
+							Title = course.GetProperty("title").GetString(),
+							Author = course.GetProperty("authors")[0].GetProperty("name").GetString()
+						}).ToList();
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"An error occurred: {ex.Message}");
+		}
+	}
+
+
+	private void CreateCourse()
+	{
+		NavigationManager.NavigateTo("/create-course");
+	}
+
+    private void EditCourse(string courseId)
+    {
+        NavigationManager.NavigateTo($"/edit-course/{courseId}");
+    }
+
+    private async Task DeleteCourse(string courseId)
+    {
+        var query = new GraphQLQuery { Query = $"mutation {{ deleteCourse(id: \"{courseId}\") }}" };
+        var response = await Http.PostAsJsonAsync("http://localhost:7186/api/graphql", query);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Reload the courses after deletion
+            await LoadCourses();
+        }
+        else
+        {
+            // Handle error
+            Console.WriteLine($"Failed to delete course with ID {courseId}");
+        }
+    }
+}

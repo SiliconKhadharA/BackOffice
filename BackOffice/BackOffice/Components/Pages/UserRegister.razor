@@ -1,0 +1,69 @@
+﻿@page "/users"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@attribute [StreamRendering]
+
+<h3>Users</h3>
+
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.FirstName  @user.LastName</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditUser(user.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteUser(user.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<UsersModel>? users;
+    private bool isLoading = true;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubscribers();
+    }
+
+    private async Task LoadSubscribers()
+    {
+        isLoading = true;
+        users = await Http.GetFromJsonAsync<List<UsersModel>>("http://localhost:7166/api/GetUsers");
+        isLoading = false;
+    }
+
+    private void EditUser(string id)
+    {
+        // Navigate to the Edit page
+        NavigationManager.NavigateTo($"/edit-user/{id}");
+    }
+
+    private async Task DeleteUser(string id)
+    {
+        await Http.DeleteAsync($"http://localhost:7166/api/user/{id}");
+        await LoadSubscribers();
+    }
+}

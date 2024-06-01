@@ -1,0 +1,76 @@
+﻿@page "/edit-admin-user/{id}"
+@using Infrastructure.AdminUserService
+@inject AdminUserService AdminUserService
+@inject NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject UserManager<AdminUserEntity> UserManager
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+<h3>Edit Admin User</h3>
+
+@if (user == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+       
+
+        <div class="form-group">
+            <label for="userName">Username</label>
+            <InputText id="userName" class="form-control" @bind-Value="user.UserName" />
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="user.Email" />
+        </div>
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <InputText id="fullName" class="form-control" @bind-Value="user.FullName" />
+        </div>
+
+        <button type="submit" @onclick="HandleValidSubmit" class="btn btn-primary">Submit</button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private AdminUserEntity user = new AdminUserEntity();
+    private string? password;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserManager.FindByIdAsync(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        user.LastModifiedDate = DateTime.UtcNow;
+
+        var result = await UserManager.UpdateAsync(user);
+        if (!string.IsNullOrEmpty(password))
+        {
+            var token = await UserManager.GeneratePasswordResetTokenAsync(user);
+            var passwordResult = await UserManager.ResetPasswordAsync(user, token, password);
+
+            if (!passwordResult.Succeeded)
+            {
+                // Handle errors
+                return;
+            }
+        }
+
+        if (result.Succeeded)
+        {
+            NavigationManager.NavigateTo("/admin-users");
+        }
+        else
+        {
+            // Handle errors
+        }
+    }
+}

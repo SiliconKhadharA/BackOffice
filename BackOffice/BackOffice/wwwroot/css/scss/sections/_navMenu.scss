@@ -1,0 +1,117 @@
+.sidebar {
+    .navMenu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 250px; // Adjust the width as needed
+        background-color: #333; // Background color of the nav menu
+        color: white;
+        overflow-x: hidden;
+        padding-top: 20px;
+        z-index: 1000; // Ensure it is above other elements
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+
+            .links {
+                margin: 15px 0;
+
+                .nav-linkss {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 15px;
+                    color: white;
+                    text-decoration: none;
+
+                    &:hover {
+                        background-color: #575757;
+                    }
+
+                    .bi {
+                        margin-right: 10px;
+                    }
+                }
+            }
+
+            .signout-buttons {
+                margin-top: auto;
+                padding: 10px 15px;
+
+                form {
+                    
+                    align-items: center;
+
+                    .btn-transparent {
+                        background: none;
+                        border: none;
+                        color: white;
+                        padding: 10px 15px;
+                        cursor: pointer;
+
+                        &:hover {
+                            background-color: #575757;
+                        }
+
+                        .fa-regular {
+                            margin-right: 3px;
+                        }
+
+                        span {
+                            display: none;
+
+                            @include lg {
+                                display: initial;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .btn-transparent {
+                background: none;
+                border: none;
+                color: white;
+                padding: 10px 15px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #575757;
+                }
+
+                .fa-regular {
+                    margin-right: 10px;
+                }
+
+                span {
+                    display: none;
+
+                    @include lg {
+                        display: initial;
+                    }
+                }
+            }
+
+            a {
+                margin: 10px 0;
+                text-align: left;
+                justify-content: flex-start;
+
+                span {
+                    display: none;
+
+                    @include lg {
+                        display: initial;
+                    }
+                }
+            }
+        }
+    }
+}
+
+main {
+    margin-left: 260px; // Adjust this margin to match the width of the sidebar
+    padding: 20px;
+}

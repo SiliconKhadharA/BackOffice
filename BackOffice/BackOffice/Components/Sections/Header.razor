@@ -1,0 +1,13 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+<header>
+    <div class="container">
+        <AuthorizeView>
+            <NotAuthorized>
+                <div id="account-buttons" class="hide">
+                    <a id="b" class="btn-gray" href="Account/Signin"><i class="fa-regular fa-right-to-bracket"></i><span>Sign In</span></a>
+                    <a id="c" class="btn-theme" href="Account/Register"><i class="fa-regular fa-user"></i><span>Sign Up</span></a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</header>
